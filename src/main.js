@@ -12,7 +12,8 @@ document.body.appendChild(renderer.domElement);
 
 // Video setup
 const video = document.createElement('video');
-video.src = '/video.mp4';
+video.crossOrigin = 'anonymous'; // Good practice
+video.src = `${import.meta.env.BASE_URL}video.mp4`;
 video.loop = true;
 video.muted = true;
 video.play().catch(e => console.error("Video play failed:", e));
@@ -343,6 +344,7 @@ videoInput.addEventListener('change', (e) => {
     if (file) {
         const url = URL.createObjectURL(file);
         video.src = url;
+        video.load();
         video.play().catch(e => console.error("Video play failed:", e));
     }
 });
