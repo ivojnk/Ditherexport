@@ -45,37 +45,40 @@ scene.add(plane);
 // Update image resolution when video metadata is loaded
 video.addEventListener('loadedmetadata', () => {
     material.uniforms.uImageResolution.value.set(video.videoWidth, video.videoHeight);
+    handleResize();
 });
 
 // Resize handler
 // Resize handler
-window.addEventListener('resize', () => {
+// Resize handler
+function handleResize() {
+    if (!video.videoWidth || !video.videoHeight) return;
+
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // If in portrait mode, force 9:16 aspect ratio within the window
-    if (isPortrait) {
-        const targetAspect = 9 / 16;
-        const windowAspect = width / height;
+    const targetAspect = video.videoWidth / video.videoHeight;
+    const windowAspect = width / height;
 
-        if (windowAspect > targetAspect) {
-            // Window is wider than target, constrain width
-            width = height * targetAspect;
-        } else {
-            // Window is taller than target, constrain height
-            height = width / targetAspect;
-        }
+    if (windowAspect > targetAspect) {
+        // Window is wider than target, constrain width
+        width = height * targetAspect;
+    } else {
+        // Window is taller than target, constrain height
+        height = width / targetAspect;
     }
 
     renderer.setSize(width, height);
     material.uniforms.uResolution.value.set(width, height);
 
-    // Center the canvas if it's smaller than window
+    // Center the canvas
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.left = '50%';
     renderer.domElement.style.top = '50%';
     renderer.domElement.style.transform = 'translate(-50%, -50%)';
-});
+}
+
+window.addEventListener('resize', handleResize);
 
 // Animation loop
 function animate() {
@@ -119,22 +122,8 @@ increaseBtn.addEventListener('click', () => {
 // Get button references early so they're available for keyboard shortcuts
 const exportBtn = document.getElementById('exportBtn');
 const uploadBtn = document.getElementById('uploadBtn');
-const orientationBtn = document.getElementById('orientationBtn');
 const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
-
-// Orientation state
-let isPortrait = false;
-
-// Orientation toggle handler
-orientationBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    isPortrait = !isPortrait;
-    orientationBtn.textContent = isPortrait ? 'Portrait' : 'Landscape';
-
-    // Trigger resize to update view
-    window.dispatchEvent(new Event('resize'));
-});
 
 // Keyboard toggle with 'S' key
 let controlsVisible = true;
@@ -145,7 +134,6 @@ document.addEventListener('keydown', (e) => {
         hint.classList.toggle('hidden', !controlsVisible);
         exportBtn.classList.toggle('hidden', !controlsVisible);
         uploadBtn.classList.toggle('hidden', !controlsVisible);
-        orientationBtn.classList.toggle('hidden', !controlsVisible);
         progressBar.classList.toggle('hidden', !controlsVisible);
     }
 });
@@ -167,20 +155,9 @@ exportBtn.addEventListener('click', async () => {
     progressBar.classList.add('visible');
 
     try {
-        // Calculate export dimensions based on selected orientation
-        const maxDimension = 1920;
-
-        let width, height;
-
-        if (isPortrait) {
-            // Force Portrait (9:16)
-            width = 1080;
-            height = 1920;
-        } else {
-            // Force Landscape (16:9)
-            width = 1920;
-            height = 1080;
-        }
+        // Use detected dimensions from the video itself
+        let width = video.videoWidth;
+        let height = video.videoHeight;
 
         // Ensure dimensions are even numbers (required by some codecs)
         width = width % 2 === 0 ? width : width - 1;
