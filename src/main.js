@@ -33,7 +33,8 @@ const material = new THREE.ShaderMaterial({
         uTexture: { value: videoTexture },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         uImageResolution: { value: new THREE.Vector2(1920, 1080) }, // Default to 1080p
-        uThreshold: { value: 0.5 }
+        uThreshold: { value: 0.5 },
+        uInvert: { value: 0.0 }
     },
     vertexShader,
     fragmentShader
@@ -92,6 +93,7 @@ animate();
 const controls = document.getElementById('controls');
 const hint = document.getElementById('hint');
 const thresholdInput = document.getElementById('thresholdInput');
+const invertBtn = document.getElementById('invertBtn');
 const decreaseBtn = document.getElementById('decreaseBtn');
 const increaseBtn = document.getElementById('increaseBtn');
 
@@ -117,6 +119,11 @@ decreaseBtn.addEventListener('click', () => {
 increaseBtn.addEventListener('click', () => {
     const newValue = parseFloat(thresholdInput.value) + 0.01;
     updateThreshold(newValue);
+});
+
+// Invert toggle
+invertBtn.addEventListener('change', (e) => {
+    material.uniforms.uInvert.value = e.target.checked ? 1.0 : 0.0;
 });
 
 // Get button references early so they're available for keyboard shortcuts
@@ -181,7 +188,8 @@ exportBtn.addEventListener('click', async () => {
                 uTexture: { value: videoTexture },
                 uResolution: { value: new THREE.Vector2(width, height) },
                 uImageResolution: { value: new THREE.Vector2(video.videoWidth, video.videoHeight) },
-                uThreshold: { value: material.uniforms.uThreshold.value }
+                uThreshold: { value: material.uniforms.uThreshold.value },
+                uInvert: { value: material.uniforms.uInvert.value }
             },
             vertexShader,
             fragmentShader

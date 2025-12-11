@@ -2,6 +2,8 @@ uniform sampler2D uTexture;
 uniform vec2 uResolution;
 uniform vec2 uImageResolution;
 uniform float uThreshold;
+uniform float uInvert; // 0.0 or 1.0
+
 varying vec2 vUv;
 
 // Bayer matrix 4x4
@@ -57,10 +59,22 @@ void main() {
     // Simple threshold - dark or light, no gradients
     
     vec3 finalColor;
-    if (luminance < uThreshold) {
-        finalColor = blueBase;
+    bool isDark = luminance < uThreshold;
+    
+    if (uInvert > 0.5) {
+        // Inverted: Dark -> Green, Light -> Blue
+        if (isDark) {
+            finalColor = greenBase;
+        } else {
+            finalColor = blueBase;
+        }
     } else {
-        finalColor = greenBase;
+        // Normal: Dark -> Blue, Light -> Green
+        if (isDark) {
+            finalColor = blueBase;
+        } else {
+            finalColor = greenBase;
+        }
     }
     
     gl_FragColor = vec4(finalColor, 1.0);

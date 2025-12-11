@@ -184,6 +184,11 @@
   <div class="controls" id="controls">
     <div class="control-group">
       <label class="control-label">Threshold</label>
+      <div style="display: flex; align-items: center; gap: 8px; margin-right: 16px;">
+        <input type="checkbox" id="invertBtn"
+          style="width: 16px; height: 16px; accent-color: #BDF739; cursor: pointer;">
+        <label for="invertBtn" style="color: #fff; font-size: 14px; font-weight: 500; cursor: pointer;">INVERT</label>
+      </div>
       <button class="control-button" id="decreaseBtn">−</button>
       <input type="number" id="thresholdInput" class="value-input" min="0" max="1" step="0.01" value="0.50">
       <button class="control-button" id="increaseBtn">+</button>
